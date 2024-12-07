@@ -1,54 +1,51 @@
 package com.exam.backend_ex.controller;
 
-import com.exam.backend_ex.controller.util.ApiResponse;
-import com.exam.backend_ex.dao.GradeDao;
-import com.exam.backend_ex.dao.StudentDao;
 import com.exam.backend_ex.model.Grade;
 import com.exam.backend_ex.model.Student;
+import com.exam.backend_ex.model.StudentDto;
+import com.exam.backend_ex.services.GradeService;
+import com.exam.backend_ex.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+
+import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/students")
 public class StudentController {
-    @Autowired
-    StudentDao studentDao;
-
-    @GetMapping
-    public List<Student> productsList(){
-        return studentDao.findAll();
-    }
-
-    @PostMapping
-    public ApiResponse<Student> createStudent(@RequestBody Student p){
-        return new ApiResponse<Student>(HttpStatus.OK.value(), "Student added successfully ", studentDao.save(p));
-    }
 
     @Autowired
-    GradeDao gradeDao;
+    private StudentService studentService;
 
-    @GetMapping( value = "/{id}")
-    public List<Grade> gradesList(@PathVariable String id){
-        return gradeDao.findAllById(id);
+    @Autowired
+    private GradeService gradeService;
+
+    @GetMapping("/")
+    public List<StudentDto> getAllStudents() {
+        return studentService.getAllStudents().stream()
+                .map(student -> new StudentDto(
+                        student.getId(),
+                        student.getName(),
+                        student.getDateCreation(),
+                        student.getGrades().stream().mapToDouble(Grade::getNote).average().orElse(0.0)
+                )).collect(Collectors.toList());
     }
 
-
-
-    @PostMapping( value = "/{id}")
-    public ApiResponse<Grade> createGrade(@PathVariable int id, @RequestBody Grade g){
-        Optional<Student> student = studentDao.findById(id);
-        if(Objects.isNull(student)) {
-            return new ApiResponse<Grade>(HttpStatus.NOT_FOUND.value(), "Student with id: "+id+ " not found", null);
-        }
-        g.setStudent_id(id);
-        return new ApiResponse<Grade>(
-                HttpStatus.OK.value(),
-                "Grade added successfully",
-                gradeDao.save(g));
+    @PostMapping("/")
+    public Student addStudent(@RequestBody Student student) {
+        return studentService.addStudent(student);
     }
 
+    @GetMapping("/{id}/grades")
+    public List<Grade> getGradesForStudent(@PathVariable Long id) {
+        return gradeService.getGradesByStudentId(id);
+    }
+
+    @PostMapping("/{id}/grades")
+    public Grade addGradeToStudent(@PathVariable Long id, @RequestBody Grade grade) {
+        return gradeService.addGradeToStudent(id, grade);
+    }
 }

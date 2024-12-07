@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface GradeDao extends JpaRepository<Grade, Integer> {
-    List<Grade> findAllById(String id);
+    List<Grade> findByStudentId(Long studentId);
 }
