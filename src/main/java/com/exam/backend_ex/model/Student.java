@@ -23,10 +23,15 @@ public class Student {
 
     @OneToMany(mappedBy = "student", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Grade> grades;
+
     public Student( String name, double note) {
         this.name = name;
         this.note = note;
 
+    }
+    public void addGrade(Grade grade) {
+        this.grades.add(grade);
+        grade.setStudent(this);
     }
     public Student() {}
 }

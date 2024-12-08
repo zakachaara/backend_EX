@@ -7,6 +7,7 @@ import com.exam.backend_ex.services.GradeService;
 import com.exam.backend_ex.services.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/students")
+@CrossOrigin(origins = "http://localhost:3000")
 public class StudentController {
 
     @Autowired
@@ -38,6 +40,10 @@ public class StudentController {
     public Student addStudent(@RequestBody Student student) {
         return studentService.addStudent(student);
     }
+    @GetMapping("/{id}")
+    public Student getStudent(@PathVariable Long id) {
+        return studentService.getStudentById(id);
+    }
 
     @GetMapping("/{id}/grades")
     public List<Grade> getGradesForStudent(@PathVariable Long id) {
@@ -45,7 +51,9 @@ public class StudentController {
     }
 
     @PostMapping("/{id}/grades")
-    public Grade addGradeToStudent(@PathVariable Long id, @RequestBody Grade grade) {
-        return gradeService.addGradeToStudent(id, grade);
+    public ResponseEntity<Grade> addGradeToStudent(@PathVariable Long id, @RequestBody Grade grade) {
+        Grade newGrade = gradeService.addGradeToStudent(id, grade);
+        return ResponseEntity.ok(newGrade);
+
     }
 }

@@ -23,7 +23,13 @@ public class GradeService {
 
     public Grade addGradeToStudent(Long studentId, Grade grade) {
         Student student = studentService.getStudentById(studentId);
-        grade.setStudent(student);
-        return gradeDao.save(grade);
+
+
+        student.addGrade(grade);
+
+
+        studentService.saveStudent(student);
+
+        return grade;
     }
 }

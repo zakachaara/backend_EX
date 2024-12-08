@@ -20,6 +20,9 @@ public class StudentService {
     public Student addStudent(Student student) {
         return studentDao.save(student);
     }
+    public Student saveStudent(Student student) {
+        return studentDao.save(student);
+    }
 
     public Student getStudentById(Long id) {
         return studentDao.findById(Math.toIntExact(id))
